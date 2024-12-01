@@ -1,9 +1,5 @@
 def main [] {
-  let langs = (open languages.txt | lines)
-
-  1..31
-    | each { |i| { day: $i, language: ($langs | get random) } }
-    | to nuon
+  open languages.txt | lines | get random
 }
 
 
