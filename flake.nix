@@ -42,6 +42,9 @@
           # janet
           janet
           jpm
+
+          # f#
+          fsharp
         ];
       };
     });

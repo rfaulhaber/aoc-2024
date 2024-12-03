@@ -18,15 +18,13 @@
 
 
 (defn main [& argv]
-     (let [{"input" input "part" part} (argparse/argparse ;args)]
-          (unless (or input part)
-               (os/exit 1))
-          (pp (string/format "input: %s part: %i" input part))
-          (match part
-            1 (solution/part1 input)
-            2 (solution/part2 input)
-            _ (do
-                (print "--part should be either 1 or 2")
-                (os/exit 1)))
-
-       ))
+  (let [{"input" input "part" part} (argparse/argparse ;args)]
+    (unless (or input part)
+      (os/exit 1))
+    (pp (string/format "input: %s part: %i" input part))
+    (match part
+      1 (pp (solution/part1 input))
+      2 (pp (solution/part2 input))
+      _ (do
+          (print "--part should be either 1 or 2")
+          (os/exit 1)))))
