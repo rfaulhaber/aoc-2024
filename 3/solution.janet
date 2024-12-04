@@ -14,15 +14,14 @@
       :do "do()"
       :mul-args (replace (capture (sequence (some :d) "," (some :d))) ,transform-match)
       :mul (sequence "mul(" :mul-args ")")
-      :before-dont (any (if-not :dont (choice :mul 1)))
-      :skip-dont (if :dont (thru :do))
-      :main (sequence :before-dont (any (choice :skip-dont :before-dont 1)))
+      :enabled-section (any (if-not :dont (choice :mul 1)))
+      :disabled-section (if :dont (to :do))
+      :main (sequence :enabled-section (any (choice :disabled-section :enabled-section 1)))
       }))
 
 (defn parse-input [grammar input]
-  (let [file-contents (util/lines-from-file (util/read-file input))
-        captures (mapcat (fn [line] (peg/match grammar line)) file-contents)]
-    captures))
+  (let [file-contents (util/lines-from-file (util/read-file input))]
+    (mapcat (fn [line] (peg/match grammar line)) file-contents)))
 
 (defn calc-result [pairs]
   (reduce (fn [acc @[left right]] (+ acc (* left right))) 0 pairs))
