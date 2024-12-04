@@ -2,3 +2,5 @@
 __pycache__
 jpm_tree
 build
+input.txt
+sample*.txt
