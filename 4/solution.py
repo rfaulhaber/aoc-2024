@@ -1,97 +1,65 @@
-char_lookup = {
-    'X': 'M',
-    'M': 'A',
-    'A': 'S',
-    'S': None,
-}
 
 def part1(input):
-    m = get_positions(input)
-    adj_list = get_adjacency_list(m)
-    paths = get_paths(adj_list)
+    sum = 0
 
-    print(paths)
+    directions = [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]
 
-    return "part1"
+    # this is so ugly....
+    for (x, row) in enumerate(input):
+        for (y, char) in enumerate(row):
+            if char == 'X':
+                for (ax, ay) in directions:
+                    (sx, sy) = tuple_add((x, y), (ax, ay))
+                    (tx, ty) = tuple_add((sx, sy), (ax, ay))
+                    (fx, fy) = tuple_add((tx, ty), (ax, ay))
+
+                    if sx >= 0 and sy >= 0 and tx >= 0 and ty >= 0 and fx >= 0 and fy >= 0 and sx < len(input) and tx < len(input) and sy < len(row) and ty < len(row) and fx < len(input) and fy < len(row) and input[sx][sy] == 'M' and input[tx][ty] == 'A' and input[fx][fy] == 'S':
+                        sum += 1
+
+    return sum
 
 def part2(input):
-    return "part2"
+    sum = 0
 
-def get_positions(input):
-    matrix = []
-    for (line, row) in enumerate(input):
-        row_items = []
-        for (i, item) in enumerate(row):
-            row_items.append(((line, i), item))
-        matrix.append(row_items)
+    directions = [(-1, -1), (1, 1), (1, -1), (1, 1)]
 
-    return matrix
+    for (x, row) in enumerate(input):
+        for (y, char) in enumerate(row):
+            if char == 'A':
+                maxX = len(input)
+                maxY = len(row)
 
-def get_adjacent_positions(x, y):
-    vals = [(x - 1, y - 1), (x, y - 1), (x + 1, y - 1),
-            (x - 1, y),                 (x + 1, y),
-            (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)]
+                in_bounds = tuple_in_bounds(maxX, maxY)
 
-    return [(x, y) for (x, y) in vals if x >= 0 and y >= 0]
+                up_left = tuple_add((x, y), (-1, -1))
+                up_right = tuple_add((x, y ), (1, -1))
+                down_left = tuple_add((x, y), (-1, 1))
+                down_right = tuple_add((x, y), (1, 1))
 
-def get_relevant_adjacents(m, x, y):
-    (pos, c) = m[x][y]
-    next_char = char_lookup[c]
+                if all([in_bounds(pos) for pos in [up_left, up_right, down_left, down_right]]):
+                    up_left_char = input[up_left[0]][up_left[1]]
+                    up_right_char = input[up_right[0]][up_right[1]]
+                    down_left_char = input[down_left[0]][down_left[1]]
+                    down_right_char = input[down_right[0]][down_right[1]]
 
-    if next_char == None:
-        return []
+                    diag_one = [up_left_char, down_right_char]
+                    diag_two = [up_right_char, down_left_char]
 
-    adjacents = [(ax, ay) for (ax, ay) in get_adjacent_positions(x, y) if ax < len(m[x]) and ay < len(m)]
-    chars = [m[x][y] for (x, y) in adjacents]
-    return [(p, ch) for (p, ch) in chars if ch == next_char]
+                    if diag_one.count('M') == 1 and diag_one.count('S') == 1 and diag_two.count('M') == 1 and diag_two.count('S') == 1:
+                        sum += 1
 
-def get_adjacency_list(m):
-    adj = {}
-    for row in m:
-        for pos in row:
-            ((x, y), _) = pos
-            adjs = get_relevant_adjacents(m, x, y)
-            if len(adjs) != 0:
-                adj[pos] = adjs
+    return sum
 
-    return adj
+def tuple_add(l, r):
+    (lx, ly) = l
+    (rx, ry) = r
 
-def get_paths(adj_list):
-    print(adj_list)
+    return (lx + rx, ly + ry)
 
-    paths = []
+def tuple_in_bounds(x, y):
+    def in_bounds(tup):
+        (tx, ty) = tup
 
-    x_paths = []
+        return tx >= 0 and ty >= 0 and tx < x and ty < y
 
-    for (k, v) in adj_list.items():
-        (_, kc) = k
-        if kc == 'X':
-            x_paths.append(k)
-
-    m_paths = []
-
-    for x_path in x_paths:
-        for x_value in adj_list[x_path]:
-            (_, kc) = x_value
-
-            if kc == 'M':
-                m_paths.append((x_path, x_value))
-
-    a_paths = []
-    for (x_path, m_value) in m_paths:
-        for value in adj_list[m_value]:
-            (_, kc) = value
-
-            if kc == 'A' and value in adj_list:
-                a_paths.append((x_path, m_value, value))
-
-    s_paths = []
-    for (x_path, m_value, a_value) in a_paths:
-        for value in adj_list[a_value]:
-            (_, kc) = value
-
-            if kc == 'S' :
-                s_paths.append((x_path, m_value, a_value, value))
-
-
-    print(s_paths)
+    return in_bounds
